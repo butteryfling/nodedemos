@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>map二级联动</title>
+	<script type="text/javascript" src="jquery-3.0.0.min.js"></script>
+</head>
+<body>
+
+	<select id="province">
+		<option>请选择</option>
+	</select>省
+	<select id="city">
+		<option>请选择</option>
+	</select>市
+	<input type="text" id="bma"><input type="button" value="查询" id="cx">
+	<script type="text/javascript">
+		function showMsg(arr){
+			var map = new Map();
+			for (var i = 0; i < arr.length; i++) {
+				var map1 = new Map();
+				for (var j = 0; j < arr[i]["市"].length; j++) {
+					map1.set(arr[i]["市"][j]["市名"],arr[i]["市"][j]["编码"]);
+				}
+				map.set(arr[i]["省"],map1);
+				$("<option></option>").html(arr[i]["省"]).appendTo($("#province"));	
+			}
+
+			$("#province").change(function(){
+				$("#bma").val("");
+				$("#city").html("<option>请选择</option>")
+				var map2 = map.get($(this).val());
+				for( var i of  map2.keys() ){
+					$("<option></option>").html(i).appendTo($("#city"));	
+				}
+				
+			})
+
+			$("#city").change(function(){
+				$("#bma").val("");
+
+			})
+
+
+			$("#cx").click(function(){
+				$("#bma").val(map.get(province.value).get(city.value));
+			})
+
+		}
+		$(function(){
+			$.ajax({
+				url:"city.json",
+				success:function(data,textStatus){
+					var data = JSON.parse(data);
+					console.log(data);
+					console.log(textStatus);
+					showMsg(data["城市代码"]);
+				}
+			})
+		})
+	</script>
+</body>
+</html>

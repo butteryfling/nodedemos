@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<title>水果列表</title>
+	<style type="text/css">
+
+		table{
+			border:1px solid red;
+			border-collapse: collapse;
+			margin: 40px auto;
+		}
+
+		th,td{
+			border:1px solid red;
+			border-collapse: collapse;
+			min-width: 100px;
+			height: 60px;
+			line-height: 60px;
+			text-align: center;
+		}
+
+		#clone{
+			display: none;
+		}
+
+		input[type = "text"]{
+			/*border:none;*/
+			width: 80px;
+			height: 30px;
+		}
+
+		.update,.delete {
+			background-color: #BDBDBD;
+		}
+	</style>
+</head>
+<body>
+
+<table>
+	<thead id="tit">
+		<th>编号</th>
+		<th>水果名称</th>
+		<th>价格<button>排序</button></th>
+		<th>品种</th>
+		<th>数量<button>排序</button></th>
+		<th>操作</th>
+	</thead>
+	<tbody id="fruit">
+		<tr id="clone">
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td><input type="button" class="update" value="修改"><input type="button" class="delete" value="删除"></td>
+		</tr>
+	</tbody>
+
+</table>
+
+<script type="text/javascript">
+
+	console.log(document.getElementsByTagName("tr"));
+	//创建xhr
+	var xhr = new XMLHttpRequest();
+
+	//带卡
+	xhr.open("get","http://localhost:8888/data",true);
+
+	xhr.send();
+
+	xhr.onreadystatechange = function(){
+		if (xhr.readyState == 4 ) {
+			if (xhr.status >=200 && xhr.status < 300) {
+				console.log(xhr.responseText);
+				var data = JSON.parse(xhr.responseText);
+				showMsg(data);
+			}
+		}
+	}
+
+
+	var order1 = 1;
+	var order2 = 1;
+
+	function showMsg(obj){
+		var newArr = obj.list;
+
+		for (var i = 0; i < newArr.length; i++) {
+			var newTr = clone.cloneNode(true);
+			newTr.removeAttribute("id");
+			fruit.appendChild(newTr);
+
+			var oTd = newTr.getElementsByTagName("td");
+			var fruArr = [i+1,newArr[i].name,newArr[i].price,newArr[i].type,newArr[i].count];
+
+
+			for (var j = 0; j < oTd.length-1; j++) {
+				oTd[j].innerHTML = fruArr[j];
+			}
+
+		}
+
+		var oUpdate = document.getElementsByClassName("update");
+
+		var oDelete = document.getElementsByClassName("delete");
+
+		for (var i = 0; i < oUpdate.length; i++) {
+			oUpdate[i].onclick = function(){
+
+				if (this.value == "保存") {
+					this.value = "修改";
+					this.parentNode.parentNode.getElementsByTagName("td")[2].innerHTML = this.parentNode.parentNode.getElementsByTagName("td")[2].getElementsByTagName("input")[0].value;
+					this.parentNode.parentNode.getElementsByTagName("td")[4].innerHTML = this.parentNode.parentNode.getElementsByTagName("td")[4].getElementsByTagName("input")[0].value;
+				}else{
+					this.value = "保存";
+					var oValue1 = this.parentNode.parentNode.getElementsByTagName("td")[2].innerHTML;
+					var oValue2 = this.parentNode.parentNode.getElementsByTagName("td")[4].innerHTML;
+	
+					this.parentNode.parentNode.getElementsByTagName("td")[2].innerHTML = "<input type = 'text' value = '" + oValue1 + "' autofocus>";
+					this.parentNode.parentNode.getElementsByTagName("td")[4].innerHTML = "<input type = 'text' value = '" + oValue2 + "'>";
+				}
+				
+			}
+
+		}
+
+		for (var i = 0; i < oDelete.length; i++) {
+			oDelete[i].onclick = function(){
+				this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
+			}
+		}
+	}
+
+ 	tit.getElementsByTagName("th")[2].onclick = function(){
+ 		var oTds = fruit.getElementsByTagName("tr");
+ 		var tdArr = [];
+ 		for (var i = 1; i < oTds.length; i++) {
+ 			tdArr.push(oTds[i]);
+ 		}
+
+ 		order1 = -1*order1;
+ 		arrSort(tdArr,2,order1);
+
+ 		for (var i = 0; i < tdArr.length; i++) {
+ 			fruit.appendChild(tdArr[i]);
+ 		}
+
+ 	}
+
+ 	tit.getElementsByTagName("th")[4].onclick = function(){
+ 		var oTds = fruit.getElementsByTagName("tr");
+ 		var tdArr = [];
+ 		for (var i = 1; i < oTds.length; i++) {
+ 			tdArr.push(oTds[i]);
+ 		}
+
+ 		order2 = -1*order2;
+ 		arrSort(tdArr,4,order2);
+
+ 		for (var i = 0; i < tdArr.length; i++) {
+ 			fruit.appendChild(tdArr[i]);
+ 		}
+
+ 	}
+
+ 	function arrSort(obj,num,order){
+ 		obj.sort(function(obj1,obj2){
+ 			var num1 = parseInt(obj1.getElementsByTagName("td")[num].innerHTML);
+ 			var num2 = parseInt(obj2.getElementsByTagName("td")[num].innerHTML);
+ 			if (order == 1) {
+ 				return num1 - num2;
+ 			}else {
+ 				return num2 - num1;
+ 			}
+ 			
+ 		})
+ 	}
+
+</script>
+	
+</body>
+</html>
